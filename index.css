@@ -1,0 +1,19 @@
+.Board{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    width: 400px;
+    height: 400px;
+    margin: 0 auto;
+}
+.square{
+    border: 1px solid black;
+    font-size: large;
+    text-align: center;
+
+}
+.sign{
+    font-size: 120px;
+    text-align: center;
+    align-items: center;
+}
