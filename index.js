@@ -1,115 +1,122 @@
-function createGameBoard() {
-    let board = [0, 0, 0, 0, 0, 0, 0, 0, 0];
-    return board
-}
-function createPlayer(sign, color) {
-    let score = 0;
-    const addScore = () => {
-        score++;
-    };
-    const getScore = () => score;
-
-    return {
-        sign,
-        color,
-        addScore,
-        getScore
+function gameBoard() {
+    let board = [];
+    const cells =9;
+    for (let i = 0; i < cells; i++) {
+        board.push(Cell());
     }
-}
-let board = createGameBoard();
-let player1 = createPlayer("X", "red");
-let player2 = createPlayer("O", "blue");
-
-function renderBoard(board) {
-   for (i in board) {
-       let square = document.createElement("div");
-       square.classList.add("square");
-       let sign = document.createElement("span");
-       sign.classList.add("sign");
-       square.appendChild(sign);
-       canvas.appendChild(square);
-   }
-
-}
-function checkWin(board) {
-    for (let i = 0; i < winningCombinations.length; i++) {
-        if (
-            board[winningCombinations[i][0]] === board[winningCombinations[i][1]] &&
-            board[winningCombinations[i][1]] === board[winningCombinations[i][2]] &&
-            board[winningCombinations[i][0]] !== 0
-        ) {
-            return {true : true, winningCombinations: winningCombinations[i]};
-        }
-    }
-    return false;
-}
-const winningCombinations = [
-    [0, 1, 2],
-    [3, 4, 5],
-    [6, 7, 8],
-    [0, 3, 6],
-    [1, 4, 7],
-    [2, 5, 8],
-    [0, 4, 8],
-    [2, 4, 6],
-]
-function checkDraw(board) {
-    for (let i = 0; i < board.length; i++) {
-        if (board[i] === 0) {
+   const winningCombinations = [
+       [0, 1, 2],
+       [3, 4, 5],
+       [6, 7, 8],
+       [0, 3, 6],
+       [1, 4, 7],
+       [2, 5, 8],
+       [0, 4, 8],
+       [2, 4, 6]
+   ]
+    const getBoard = () => board;
+    const playMove = (index, player) => {
+        let availableCells = emptyCells();
+        if (availableCells.length === 0 || index < 0 || index > 8 || board[index].getValue() !== "_") {
+            console.log("Invalid move");
             return false;
         }
+        board[index].playMove(player);
     }
-    return true;
-}
-const canvas = document.querySelector(".Board");
-
-renderBoard(board);
-const cells = document.querySelectorAll(".square");
-
-
-
-function renderScore(player1, player2){
-    document.querySelector(".player1 .score").textContent = player1.getScore();
-    document.querySelector(".player2 .score").textContent = player2.getScore();
-}
-function updateBoard(board,index,currentPlayer){
-    board[index] = currentPlayer.sign;
-    cells[index].querySelector("span").textContent = currentPlayer.sign;
-    cells[index].style.color = currentPlayer.color;
-}
-
-/* Event listenr for each cell */
-function playGame(board, player1, player2) {
-    let currentPlayer = player1;
-    renderScore(player1, player2);
-    for (let i = 0; i < cells.length; i++) {
-        cells[i].addEventListener("click", () => {
-            if (board[i] === 0) {
-                updateBoard(board, i, currentPlayer);
-                if (checkWin(board)) {
-                    renderScore(player1, player2);
-                    alert(`Player ${currentPlayer.sign} wins!`);
-                    for (i in checkWin(board).winningCombinations) {
-                        cells[checkWin(board).winningCombinations[i]].style.backgroundColor = "green";
-                    }
-                    return;
-                }
-    
-                currentPlayer = currentPlayer === player1 ? player2 : player1;
+    const checkWin = () => {
+        for (let i = 0; i < winningCombinations.length; i++) {
+            let [a, b, c] = winningCombinations[i];
+            if (board[a].getValue() === board[b].getValue() && board[b].getValue() === board[c].getValue() && board[a].getValue() !== "_") {
+                return true;
             }
-        });
-    }       
-}
-const reset = document.querySelector("#reset");
-reset.addEventListener("click", () => {
-    clear();
-});
-function clear(){
-    for (let i = 0; i < cells.length; i++) {
-        board[i] = 0;
-        cells[i].querySelector("span").textContent = "";
+        }
+        return false;
     }
+    const displayBoard = () => {
+    const rows = [0, 3, 6];
+    let displayString = '';
+    rows.forEach(start => {
+        displayString += board.slice(start, start + 3).map(cell => cell.getValue()).join('|') + '\n';
+    });
+    console.log(displayString);
+
+    }
+    const clearBoard = () => {
+        board = [];
+        for (let i = 0; i < cells; i++) {
+            board.push(Cell());
+        }
+    }
+    const emptyCells = () => board.filter(cell => cell.getValue() === "_");
+    return {getBoard, playMove, displayBoard,checkWin,clearBoard};
 }
 
-playGame(board, player1, player2);
+function Cell() {
+    let cellValue ="_";
+    const getValue = () => cellValue;
+    const playMove = (player) => {
+        cellValue = player.value;
+    }
+    return {getValue, playMove};
+}
+function GameController(){
+    let player1 = "X";
+    let player2 = "O";
+    const board = gameBoard();
+    const players =[
+        {name : player1
+        ,value :"X"
+        },{
+            name : player2
+            ,value : "O"
+        }
+    ]
+    let currentPlayer = players[0];
+    const switchTurn = () => {
+        currentPlayer === players[0] ? currentPlayer = players[1] : currentPlayer = players[0];
+    }
+    const getCurrentPlayer = () => currentPlayer;
+    const playRound = ( index) => {
+        console.log(board.displayBoard());
+        if (board.playMove(index, currentPlayer) === false) {
+            return;
+        }else{
+            board.displayBoard();
+            if (board.checkWin()) {
+                console.log(`Player ${currentPlayer.name} wins!`);
+                board.clearBoard();
+                console.log(board.displayBoard());
+                return;
+            }
+            switchTurn();
+        }
+    }
+    return { playRound, getCurrentPlayer,getBoard:board.getBoard};
+}
 
+function ScreenController(){
+    const game = GameController();
+    const playerTurn = document.querySelector(".currentPlayer");
+    const boardDiv = document.querySelector(".Board");
+    const updateScreen = () => {
+        boardDiv.textContent = "";
+        const board = game.getBoard();
+        const turn =game.getCurrentPlayer();
+        playerTurn.textContent = turn.name;
+        board.forEach(cell => {
+            const square = document.createElement('button');
+            square.classList.add("square");
+            square.dataset.index = board.indexOf(cell);
+            square.textContent = cell.getValue();
+            boardDiv.appendChild(square);
+        })
+    }
+    function clickHandler(event){
+        const index = event.target.dataset.index;
+        game.playRound(index);
+        updateScreen();
+    }
+    boardDiv.addEventListener("click", clickHandler);
+    updateScreen();
+}
+ScreenController();
