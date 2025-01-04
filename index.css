@@ -6,14 +6,19 @@
     height: 400px;
     margin: 0 auto;
 }
+.Board img{
+    width: 400px;
+    height: 400px;
+}
 .square{
     border: 1px solid black;
     font-size: large;
     text-align: center;
 
+
 }
 .sign{
-    font-size: 120px;
+    font-size: 100px;
     text-align: center;
     align-items: center;
 }

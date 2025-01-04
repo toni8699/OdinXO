@@ -61,16 +61,12 @@ function checkDraw(board) {
     }
     return true;
 }
-let move = 0;
 const canvas = document.querySelector(".Board");
 
 renderBoard(board);
 const cells = document.querySelectorAll(".square");
 
-for (let i = 0; i < cells.length; i++) {
-    cells[i].addEventListener("click", () => {
-        move = i;
-})}
+
 
 function renderScore(player1, player2){
     document.querySelector(".player1 .score").textContent = player1.getScore();
