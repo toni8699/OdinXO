@@ -8,13 +8,24 @@
 </head>
 <body>
     <h1>OdinXO</h1>
-    <h2 class="player1">Player 1: <span class="score"></span></h2>
-    <h2 class="player2">Player 2: <span class="score"></span></h2>
+    <button class="start">Start game</button>
+    <h2 >Player 1: <span class="player1"></span></h2>
+    <h2 >Player 2: <span class="player2"></span></h2>
     <h2>Current Player: <span class="currentPlayer"></span></h2>
+    <dialog class="playAgain">
+        <button>Play Again</button>
+    </dialog>
+    <dialog class ="name">
+        <form>
+            <input class="name1" type="text" placeholder="Enter Player 1 Name" required>
+            <input class="name2" type="text" placeholder="Enter Player 2 Name" required>
+            <button class = "submit">Submit</button>
+        </form>
+    </dialog>
     <div class="Board">
 
     </div>
-    <button id="reset">Reset</button>
+    <button id="reset">Play Again</button>
     <script src="index.js"></script>
     
 </body>

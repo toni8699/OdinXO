@@ -14,14 +14,17 @@ function gameBoard() {
        [0, 4, 8],
        [2, 4, 6]
    ]
+
     const getBoard = () => board;
     const playMove = (index, player) => {
-        let availableCells = emptyCells();
-        if (availableCells.length === 0 || index < 0 || index > 8 || board[index].getValue() !== "_") {
-            console.log("Invalid move");
+        if (emptyCells().length === 0) {
+            return false;
+        }
+        if (board[index].getValue() !== "_") {
             return false;
         }
         board[index].playMove(player);
+        return true;
     }
     const checkWin = () => {
         for (let i = 0; i < winningCombinations.length; i++) {
@@ -32,6 +35,7 @@ function gameBoard() {
         }
         return false;
     }
+    const checkDraw = () => emptyCells().length === 0 ? true : false ;
     const displayBoard = () => {
     const rows = [0, 3, 6];
     let displayString = '';
@@ -48,7 +52,7 @@ function gameBoard() {
         }
     }
     const emptyCells = () => board.filter(cell => cell.getValue() === "_");
-    return {getBoard, playMove, displayBoard,checkWin,clearBoard};
+    return {getBoard, playMove, checkDraw,checkWin,clearBoard,displayBoard};
 }
 
 function Cell() {
@@ -71,27 +75,28 @@ function GameController(){
             ,value : "O"
         }
     ]
+    const gameOver = false;
     let currentPlayer = players[0];
     const switchTurn = () => {
         currentPlayer === players[0] ? currentPlayer = players[1] : currentPlayer = players[0];
     }
+    const reset = () => {
+        board.clearBoard();
+        currentPlayer = players[0];
+    }
     const getCurrentPlayer = () => currentPlayer;
     const playRound = ( index) => {
-        console.log(board.displayBoard());
-        if (board.playMove(index, currentPlayer) === false) {
-            return;
-        }else{
-            board.displayBoard();
+        if (board.playMove(index, currentPlayer)) {
             if (board.checkWin()) {
-                console.log(`Player ${currentPlayer.name} wins!`);
-                board.clearBoard();
-                console.log(board.displayBoard());
-                return;
+                return currentPlayer.name;
+            } else if (board.checkDraw()) {
+                return "Draw";
             }
             switchTurn();
+            return false;
         }
     }
-    return { playRound, getCurrentPlayer,getBoard:board.getBoard};
+    return { playRound, getCurrentPlayer,getBoard:board.getBoard,reset};
 }
 
 function ScreenController(){
@@ -111,12 +116,47 @@ function ScreenController(){
             boardDiv.appendChild(square);
         })
     }
+    const reset = document.querySelector("#reset");
+    function clearBoard(){
+        game.reset();
+        updateScreen();
+    }
+    const StartGame = document.querySelector(".start")
+    StartGame.addEventListener("click", () => {
+        const name = document.querySelector(".name");
+        name.showModal();
+    });
+const submit = document.querySelector(".submit");
+function setPlayerNames(e) {
+    e.preventDefault();
+    const name = document.querySelector(".name");
+    const player1 = document.querySelector(".name1").value;
+    const player2 = document.querySelector(".name2").value;
+    console.log(player1, player2);
+    const player1Element = document.querySelector(".player1");
+    const player2Element = document.querySelector(".player2");
+    player1Element.textContent = player1;
+    player2Element.textContent = player2;
+    name.close();
+}
+submit.addEventListener("click", setPlayerNames);
+    reset.addEventListener("click", () => {
+        clearBoard();
+
+    });
     function clickHandler(event){
         const index = event.target.dataset.index;
-        game.playRound(index);
+        const winner = game.playRound(index);
         updateScreen();
+        if (winner) {
+            alert(`${winner} wins`);
+            }
+        if ("Draw" === winner) {
+            alert("Draw");
+        }
     }
     boardDiv.addEventListener("click", clickHandler);
     updateScreen();
 }
+
 ScreenController();
